@@ -1419,25 +1419,61 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
    Cada grupo é um .group-block com título + .product-grid.
    A cor vem de --gc (definida em GROUPS, no JS).
    ═══════════════════════════════════════════════════════ */
-/* ─── Atalhos no topo do módulo 02 ─── */
-.group-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 28px;
-}
+/* ─── FILTRO por grupo (botões no topo do módulo 02) ───
+   Clicar num botão mostra SÓ aquele grupo; clicar de novo (ou em
+   "Limpar filtros") volta a mostrar todos. Lógica: setGroupFilter() no JS. */
+.group-nav { margin-bottom: 28px; }
+.group-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .group-chip {
   font-family: 'Share Tech Mono', monospace;
   font-size: .7rem;
   letter-spacing: .1em;
   text-transform: uppercase;
-  text-decoration: none;
   color: var(--gc, var(--cyan));
+  background: transparent;
   border: 1px solid var(--gc, var(--cyan));
   padding: 7px 14px;
+  cursor: pointer;
   transition: all .2s;
 }
-.group-chip:hover { background: var(--gc, var(--cyan)); color: var(--bg); }
+.group-chip:hover  { background: rgba(255,255,255,.07); }
+/* ↓ botão do filtro que está ATIVO: preenchido com a cor do grupo */
+.group-chip.active { background: var(--gc, var(--cyan)); color: var(--bg); box-shadow: 0 0 18px var(--gc, var(--cyan)); }
+
+/* ↓ Barra "Limpar filtros" — só aparece com filtro ativo (o JS troca display) */
+.group-filter-bar {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.group-clear-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--mag);                   /* ↓ COR DO BOTÃO LIMPAR FILTROS */
+  background: transparent;
+  border: 1px solid var(--mag);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.group-clear-btn:hover { background: var(--mag); color: var(--bg); }
+.group-filter-info {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  color: var(--dim);
+  letter-spacing: .06em;
+}
+/* ↓ grupo escondido pelo filtro */
+.group-block.is-hidden { display: none; }
+
+@media (max-width: 600px) {
+  .group-chips { gap: 6px; }
+  .group-chip  { font-size: .62rem; padding: 6px 9px; letter-spacing: .05em; }
+}
 
 /* ─── Bloco de cada grupo ─── */
 .group-block {
@@ -1479,6 +1515,36 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
 @media (max-width: 600px) {
   .group-title { font-size: .88rem; letter-spacing: .08em; }
   .group-block { margin-bottom: 36px; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MÓDULO 02 — 2 COLUNAS NO CELULAR
+   ─────────────────────────────────────────────────────
+   Até 640px os cards ficam 2 por linha, mais compactos
+   (menos espaço, fontes e botões menores) para caber na tela.
+   ► Para voltar a 1 coluna no celular: apague este bloco.
+   ► Para mudar a largura em que isso vale: troque 640px.
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .product-card { padding: 14px 10px 12px; }
+  .product-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .product-name { font-size: .74rem; letter-spacing: .02em; line-height: 1.25; margin-bottom: 4px; }
+  .product-size { font-size: .62rem; margin-bottom: 10px; }
+
+  /* − [número] + : botões estreitos, o campo ocupa o resto */
+  .qty-row { gap: 4px; }
+  .qty-btn { width: 32px; height: 38px; font-size: 1.1rem; flex-shrink: 0; }
+  .qty-in  { flex: 1; width: auto; min-width: 0; font-size: .95rem; padding: 7px 2px; }
+
+  /* preço, hint de desconto e botões menores */
+  .u-price { font-size: .66rem; margin-top: 10px; }
+  .u-price strong { font-size: .72rem; }
+  .discount-hint { font-size: .6rem; padding: 6px 7px; }
+  .discount-hint strong { font-size: .64rem; }
+  .discount-hint .save-line, .discount-hint .best-price { font-size: .6rem; }
+  .card-actions { gap: 6px; margin-top: 10px; }
+  .cart-item-btn, .send-item-btn { font-size: .58rem; padding: 10px 4px; letter-spacing: .03em; line-height: 1.3; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2054,7 +2120,38 @@ let PRICING = LS.get('cgx_pricing') || JSON.parse(JSON.stringify(DEFAULT_PRICING
 // ► Produto sem "group:" (ou com id que não existe aqui) cai num bloco
 //   "OUTROS ITENS" automático no final — nada some da tela.
 // ═══════════════════════════════════════════════════════
-const SHOW_GROUP_NAV = true;   // ← false esconde os botões de atalho (📷 POLAROIDES · 🖼️ QUADROS · ...)
+const SHOW_GROUP_NAV = true;   // ← false esconde os botões de filtro (📷 POLAROIDES · 🖼️ QUADROS · ...)
+// ─── FILTRO POR GRUPO (módulo 02) ─────────────────────
+// groupFilter = id do grupo que está filtrando (null = mostra todos).
+// Clicar no botão do grupo filtra; clicar de novo nele (ou em "Limpar filtros") limpa.
+// Os itens escondidos continuam no carrinho — o filtro só muda o que aparece na tela.
+let groupFilter = null;
+
+function setGroupFilter(id) {
+  groupFilter = (groupFilter === id) ? null : id;
+  applyGroupFilter();
+}
+function clearGroupFilter() {
+  groupFilter = null;
+  applyGroupFilter();
+}
+function applyGroupFilter() {
+  let shown = 0, total = 0;
+  document.querySelectorAll('.group-block').forEach(b => {
+    const n    = b.querySelectorAll('.product-card').length;
+    const hide = groupFilter && b.id !== 'grp-' + groupFilter;
+    total += n;
+    if (!hide) shown += n;
+    b.classList.toggle('is-hidden', !!hide);
+  });
+  document.querySelectorAll('.group-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.group === groupFilter));
+  const bar  = document.getElementById('groupFilterBar');
+  const info = document.getElementById('groupFilterInfo');
+  if (bar)  bar.style.display = groupFilter ? 'flex' : 'none';
+  if (info) info.textContent  = groupFilter ? `mostrando ${shown} de ${total} itens` : '';
+}
+
 const GROUPS = [
   { id:'polaroides', title:'POLAROIDES',   icon:'📷', color:'var(--cyan)' },
   { id:'quadros',    title:'QUADROS',      icon:'🖼️', color:'var(--mag)'  },
@@ -2152,10 +2249,17 @@ function renderProducts() {
   if (orphans.length) blocks.push({ g: { id:'outros-auto', title:'OUTROS ITENS', icon:'✨', color:'var(--yel)' }, items: orphans });
   const shown = blocks.filter(b => b.items.length);       // grupo vazio não aparece
 
-  // 3) atalhos no topo (só faz sentido com 2+ grupos)
+  // 3) botões de filtro no topo (só fazem sentido com 2+ grupos)
   const nav = (SHOW_GROUP_NAV && shown.length > 1)
-    ? `<div class="group-nav">${shown.map(b =>
-        `<a class="group-chip" href="#grp-${b.g.id}" style="--gc:${b.g.color}">${b.g.icon} ${b.g.title}</a>`).join('')}</div>`
+    ? `<div class="group-nav">
+        <div class="group-chips">${shown.map(b =>
+          `<button class="group-chip" data-group="${b.g.id}" style="--gc:${b.g.color}" onclick="setGroupFilter('${b.g.id}')">${b.g.icon} ${b.g.title}</button>`).join('')}</div>
+        <!-- ↓ Barra "Limpar filtros": só aparece com um filtro ativo (applyGroupFilter) -->
+        <div class="group-filter-bar" id="groupFilterBar">
+          <button class="group-clear-btn" onclick="clearGroupFilter()">✕ LIMPAR FILTROS</button>
+          <span class="group-filter-info" id="groupFilterInfo"></span>
+        </div>
+      </div>`
     : '';
 
   // 4) um bloco por grupo: título + grid de cards
@@ -2843,6 +2947,7 @@ function limparTudo() {
   if (!confirm('Limpar tudo?\n\nO carrinho, o resumo, as quantidades e o simulador voltarão a zero.')) return;
 
   simCart = [];
+  clearGroupFilter();                                  // ↓ volta a mostrar todos os grupos
   PRODUCTS.forEach(p => setCardQty(p.id, 0));          // zera os cards (e some os botões/hints)
 
   document.getElementById('simQty').value    = '';     // zera o simulador
