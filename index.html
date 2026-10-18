@@ -1367,6 +1367,121 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
 }
 
 /* ═══════════════════════════════════════════════════════
+   MÓDULO 01 — LISTA EM 2 COLUNAS (telas largas)
+   ─────────────────────────────────────────────────────
+   Em telas ≥ 1000px os produtos ficam lado a lado, e cada um
+   mantém as suas colunas: check | produto | qtd | preço/un | total | info.
+   Abaixo disso volta a ser 1 coluna (no celular não cabe 2).
+   ► Para mudar a largura em que vira 2 colunas: troque 1000px abaixo.
+   ═══════════════════════════════════════════════════════ */
+.sim-table-head--2 { display: none; }   /* ← 2º cabeçalho: só existe no modo 2 colunas */
+
+@media (min-width: 1000px) {
+  /* ↓ A TABELA fica mais larga que o resto da página (título e campos continuam alinhados em 980px).
+       Para mudar a largura da tabela: troque 1200px. Para ela ter a mesma largura dos outros módulos: use 980px. */
+  #simResults {
+    width: min(1200px, calc(100vw - 40px));
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* cabeçalhos e linhas viram 2 colunas */
+  .sim-heads,
+  #simRows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;                   /* ↓ ESPAÇO ENTRE AS DUAS COLUNAS */
+  }
+  .sim-table-head--2 { display: grid; }
+
+  /* ↓ Ordem de leitura: de cima para baixo na coluna 1 e depois na coluna 2.
+       O número de linhas (--sim-rows) é calculado pelo JS (simPutRows). */
+  #simRows {
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--sim-rows, 6), auto);
+  }
+
+  /* colunas de CADA produto (mesmas 6 de antes, mais compactas) */
+  .sim-table-head,
+  .sim-row {
+    grid-template-columns: 30px minmax(0,1.3fr) 44px 66px 106px minmax(0,1fr);
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .sim-prod-name { padding-right: 8px; }
+  .sim-total-val { white-space: nowrap; font-size: .82rem; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MÓDULO 02 — SUBGRUPOS (Polaroides / Quadros / Outros)
+   ─────────────────────────────────────────────────────
+   Cada grupo é um .group-block com título + .product-grid.
+   A cor vem de --gc (definida em GROUPS, no JS).
+   ═══════════════════════════════════════════════════════ */
+/* ─── Atalhos no topo do módulo 02 ─── */
+.group-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.group-chip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--gc, var(--cyan));
+  border: 1px solid var(--gc, var(--cyan));
+  padding: 7px 14px;
+  transition: all .2s;
+}
+.group-chip:hover { background: var(--gc, var(--cyan)); color: var(--bg); }
+
+/* ─── Bloco de cada grupo ─── */
+.group-block {
+  margin-bottom: 44px;                 /* ↓ ESPAÇO ENTRE UM GRUPO E O PRÓXIMO */
+  scroll-margin-top: 80px;             /* ← o atalho não esconde o título atrás do menu fixo */
+}
+.group-block:last-child { margin-bottom: 0; }
+.group-block .product-grid { margin-bottom: 0; }
+
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.group-icon  { font-size: 1.3rem; }
+.group-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;                     /* ↓ TAMANHO DO TÍTULO DO GRUPO */
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--gc, var(--cyan));
+  text-shadow: 0 0 16px var(--gc, var(--cyan));
+}
+.group-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  color: var(--dim);
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.group-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gc, var(--cyan)), transparent);
+  opacity: .55;
+}
+
+@media (max-width: 600px) {
+  .group-title { font-size: .88rem; letter-spacing: .08em; }
+  .group-block { margin-bottom: 36px; }
+}
+
+/* ═══════════════════════════════════════════════════════
    AJUSTES DE CELULAR — corrige o layout em telas pequenas
    ─────────────────────────────────────────────────────
    Fica NO FIM do <style> de propósito: como vem por último,
@@ -1610,7 +1725,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     <!-- A tabela some quando os campos estão vazios -->
     <div id="simResults" style="display:none;margin-top:28px">
 
-      <!-- Cabeçalho da tabela -->
+      <!-- Cabeçalho da tabela
+           ↓ No modo 2 colunas (telas ≥ 1000px) aparecem os DOIS cabeçalhos lado a lado;
+             o 2º (.sim-table-head--2) fica escondido nas telas menores. -->
+      <div class="sim-heads">
       <div class="sim-table-head">
         <span class="sim-col sim-col--check"></span>         <!-- checkbox -->
         <span class="sim-col sim-col--prod">Produto</span>
@@ -1618,6 +1736,15 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         <span class="sim-col sim-col--unit">Preço/un</span>
         <span class="sim-col sim-col--total">Total</span>
         <span class="sim-col sim-col--info">Info</span>
+      </div>
+      <div class="sim-table-head sim-table-head--2" aria-hidden="true">
+        <span class="sim-col sim-col--check"></span>         <!-- checkbox -->
+        <span class="sim-col sim-col--prod">Produto</span>
+        <span class="sim-col sim-col--qty">Qtd</span>
+        <span class="sim-col sim-col--unit">Preço/un</span>
+        <span class="sim-col sim-col--total">Total</span>
+        <span class="sim-col sim-col--info">Info</span>
+      </div>
       </div>
 
       <!-- Linhas geradas pelo JS — uma por produto -->
@@ -1683,7 +1810,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     <p class="sec-eye">// módulo 02</p>
     <h2 class="sec-title">Calculadora de Pedido</h2>
     <div class="divider"><span>◈ preço cai automaticamente com a quantidade ◈</span></div>
-    <div class="product-grid" id="productGrid"></div>
+    <!-- ↓ Os blocos (Polaroides / Quadros / Outros) são gerados pelo JS renderProducts() a partir de GROUPS -->
+    <div id="productGrid"></div>
   </div>
 </section>
 
@@ -1818,37 +1946,29 @@ const DEFAULT_PRICING = {
   // TABELAS DE PREÇO — Desconto Progressivo
   // ─── Pequena: Polaroide Pequena 5×7cm ─────────────────────
   Pequena: [
-    {q:4, u:1.5},   // 16–19 un  → R$ 1,50/un
-    {q:8, u:1.5},   // 16–19 un  → R$ 1,50/un
-    {q:12, u:1.5},   // 16–19 un  → R$ 1,50/un
-    {q:16, u:1.5},   // 16–19 un  → R$ 1,50/un
-    {q:32, u:0.9},   // 32–36 un  → R$ 0,90/un
-    {q:48, u:0.81},   // 48–63 un  → R$ 0,81/un
-    {q:64, u:0.72},   // 64–79 un  → R$ 0,72/un
-    {q:80, u:0.7},   // 80–95 un  → R$ 0,70/un
-    {q:96, u:0.69},   // 96+ un    → R$ 0,69/un  ← MELHOR PREÇO
+    {q:4, u:1.5},    
+    {q:32, u:0.9},   
+    {q:48, u:0.81},  
+    {q:64, u:0.72},  
+    {q:80, u:0.7},  
+    {q:96, u:0.69},  
   ],
 
   // ─── MÉDIA: Polaroide Média 6×8,6cm ─────────────────
   media: [
-    {q:3,  u:2.0},
-    {q:6,  u:2.0},
-    {q:9,  u:2.0},   
+    {q:3,  u:2.0},   
     {q:18, u:1.67},  
     {q:27, u:1.33},   
     {q:36, u:1.17},   
     {q:45, u:1.07},  
-    {q:54, u:1.0},   
-    {q:63, u:1.0}, 
+    {q:54, u:1.0},    
     {q:72, u:0.95},  
     {q:81, u:0.90},  
   ],
 
   // ─── GRANDE: 7×10cm ───────────────────────
   grande: [
-    {q:2,  u:2.5},
-    {q:4,  u:2.5},
-    {q:8,  u:2.5},  
+    {q:2,  u:2.5},  
     {q:16, u:1.81},   
     {q:24, u:1.75},   
     {q:32, u:1.5},   
@@ -1875,7 +1995,6 @@ const DEFAULT_PRICING = {
   // ─── Fotos 10x15 cm ─────────────────────────
     foto10x15: [
       {q:1,   u:4.0},
-      {q:3,   u:4.0},
       {q:6,   u:3.67},
       {q:9,   u:3.11},
       {q:12,  u:3.00},
@@ -1920,6 +2039,29 @@ const DEFAULT_PRICING = {
 let PRICING = LS.get('cgx_pricing') || JSON.parse(JSON.stringify(DEFAULT_PRICING));
 
 // ═══════════════════════════════════════════════════════
+// GROUPS — subgrupos do módulo 02 (calculadora de pedido)
+// ───────────────────────────────────────────────────────
+// Cada grupo vira um bloco com título e o SEU PRÓPRIO grid de cards.
+//   id:    chave interna (é o que vai em "group:" de cada produto)
+//   title: título do bloco
+//   icon:  emoji ao lado do título
+//   color: cor do título e da linha (var(--cyan) | var(--mag) | var(--yel) | var(--grn))
+//
+// ► A ORDEM desta lista = a ordem dos blocos na página.
+// ► Para CRIAR um grupo: copie uma linha, troque o id/título e use esse
+//   id no campo "group:" dos produtos (em PRODUCTS, logo abaixo).
+// ► Para MOVER um produto de grupo: troque só o "group:" dele.
+// ► Produto sem "group:" (ou com id que não existe aqui) cai num bloco
+//   "OUTROS ITENS" automático no final — nada some da tela.
+// ═══════════════════════════════════════════════════════
+const SHOW_GROUP_NAV = true;   // ← false esconde os botões de atalho (📷 POLAROIDES · 🖼️ QUADROS · ...)
+const GROUPS = [
+  { id:'polaroides', title:'POLAROIDES',   icon:'📷', color:'var(--cyan)' },
+  { id:'quadros',    title:'QUADROS',      icon:'🖼️', color:'var(--mag)'  },
+  { id:'outros',     title:'OUTROS ITENS', icon:'✨', color:'var(--yel)'  },
+];
+
+// ═══════════════════════════════════════════════════════
 // PRODUCTS — lista de produtos exibidos na calculadora
 // ───────────────────────────────────────────────────────
 // Campos de cada produto:
@@ -1931,26 +2073,28 @@ let PRICING = LS.get('cgx_pricing') || JSON.parse(JSON.stringify(DEFAULT_PRICING
 //   min:  ► QUANTIDADE MÍNIMA DA CALCULADORA (módulo 02)
 //            Altere aqui para mudar o mínimo do card.
 //            Mantenha igual ao "q" da 1ª faixa do DEFAULT_PRICING.
+//   group: ► GRUPO (subgrupo do módulo 02) em que o card aparece.
+//            Use um dos ids de GROUPS (acima): 'polaroides' | 'quadros' | 'outros'
 //   tk:   chave que liga este produto à tabela de preços
 // ═══════════════════════════════════════════════════════
 const PRODUCTS = [
-  {id:'Pequena',    name:'POLAROIDE PEQUENA',            full:'Polaroide Pequena',            size:'5×7cm · foto 4,2×5cm',      icon:'📷',tk:'Pequena',         min:4},
-  {id:'media',   name:'POLAROIDE MÉDIA',           full:'Polaroide Média',           size:'6×8,6cm · foto 5,1×6,2cm',  icon:'🖼️',tk:'media',        min:3 },
-  {id:'grande',  name:'POLAROIDE GRANDE',         full:'Polaroide Grande',         size:'7×10cm · foto 6×7cm',        icon:'✨',tk:'grande',       min:2 },
+  {id:'Pequena',    name:'POLAROIDE PEQUENA',            full:'Polaroide Pequena',            size:'5×7cm · foto 4,2×5cm',      icon:'📷',group:'polaroides', tk:'Pequena',         min:4},
+  {id:'media',   name:'POLAROIDE MÉDIA',           full:'Polaroide Média',           size:'6×8,6cm · foto 5,1×6,2cm',  icon:'🖼️',group:'polaroides', tk:'media',        min:3 },
+  {id:'grande',  name:'POLAROIDE GRANDE',         full:'Polaroide Grande',         size:'7×10cm · foto 6×7cm',        icon:'✨',group:'polaroides', tk:'grande',       min:2 },
 
-  {id:'custom',  name:'POLAROIDE PERSONALIZADA',   full:'Polaroide Personalizada',   size:'6,5×9cm · foto 5,6×6,4cm',  icon:'🎨',tk:'personalizada',min:3 },
+  {id:'custom',  name:'POLAROIDE PERSONALIZADA',   full:'Polaroide Personalizada',   size:'6,5×9cm · foto 5,6×6,4cm',  icon:'🎨',group:'polaroides', tk:'personalizada',min:3 },
   
-  {id:'tp',      name:'POLAROIDE TIRINHA',  full:'Tirinhas — Polaroide 6×20cm', size:'6×20cm',                    icon:'📸',tk:'tp',           min:1 },
+  {id:'tp',      name:'POLAROIDE TIRINHA',  full:'Tirinhas — Polaroide 6×20cm', size:'6×20cm',                    icon:'📸',group:'polaroides', tk:'tp',           min:1 },
 
- {id:'photocards',      name:'PHOTOCARDS',  full:'photocards', size:'5,5×8,5cm',                    icon:'📸',tk:'photocards',           min:3 },
+ {id:'photocards',      name:'PHOTOCARDS',  full:'photocards', size:'5,5×8,5cm',                    icon:'📸',group:'outros', tk:'photocards',           min:3 },
 
-  {id:'foto10x15',      name:'FOTO 10X15',  full:'Fotos 10x15 cm', size:'10×15cm',                    icon:'🖼️',tk:'foto10x15',           min:1},
+  {id:'foto10x15',      name:'FOTO 10X15',  full:'Fotos 10x15 cm', size:'10×15cm',                    icon:'🖼️',group:'outros', tk:'foto10x15',           min:1},
 
-  {id:'chaveiros',      name:'CHAVEIROS RETANGULAR 3X4',  full:'Chaveiro Retangular 3x4 cm', size:'3x4cm',                    icon:'🔑🖼️',tk:'chaveiros',           min:1},
+  {id:'chaveiros',      name:'CHAVEIROS RETANGULAR 3X4',  full:'Chaveiro Retangular 3x4 cm', size:'3x4cm',                    icon:'🔑🖼️',group:'outros', tk:'chaveiros',           min:1},
 
-  {id:'quadro10x15',      name:'QUADRO 10X15 - A6',  full:'Quadro 10x15 - A6', size:'10x15cm',                    icon:'🖼️',tk:'quadro10x15',           min:1},
-  {id:'quadro15x21',      name:'QUADRO 15X21 - A5',  full:'Quadro 15x21 - A5', size:'15x21cm',                    icon:'🖼️',tk:'quadro15x21',           min:1},
-  {id:'quadro20x30',      name:'QUADRO 20X30 - A4',  full:'Quadro 20X30 - A4', size:'20x30cm',                    icon:'🖼️',tk:'quadro20x30',           min:1},
+  {id:'quadro10x15',      name:'QUADRO 10X15 - A6',  full:'Quadro 10x15 - A6', size:'10x15cm',                    icon:'🖼️',group:'quadros', tk:'quadro10x15',           min:1},
+  {id:'quadro15x21',      name:'QUADRO 15X21 - A5',  full:'Quadro 15x21 - A5', size:'15x21cm',                    icon:'🖼️',group:'quadros', tk:'quadro15x21',           min:1},
+  {id:'quadro20x30',      name:'QUADRO 20X30 - A4',  full:'Quadro 20X30 - A4', size:'20x30cm',                    icon:'🖼️',group:'quadros', tk:'quadro20x30',           min:1},
 ];
 
 const qty = {};
@@ -1968,10 +2112,11 @@ function getPrice(p, q) {
 function fmt(v) { return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
 
 // ─── RENDER PRODUCTS ─────────────────────────────────
-function renderProducts() {
-  document.getElementById('productGrid').innerHTML = PRODUCTS.map(p => {
-    const mn = p.min > 1 ? `mín. ${p.min} un` : 'a partir de 1 un';
-    return `<div class="product-card" id="pc-${p.id}">
+// Monta o módulo 02 em BLOCOS (um por grupo de GROUPS).
+// Cada bloco tem título + o seu próprio grid de cards.
+function renderCard(p) {
+  const mn = p.min > 1 ? `mín. ${p.min} un` : 'a partir de 1 un';
+  return `<div class="product-card" id="pc-${p.id}">
       <div class="product-icon">${p.icon}</div>
       <p class="product-name">${p.name}</p>
       <p class="product-size">${p.size}</p>
@@ -1995,9 +2140,35 @@ function renderProducts() {
           📲 ENVIAR ESSE PEDIDO
         </button>
       </div>
-      
     </div>`;
-  }).join('');
+}
+
+function renderProducts() {
+  // 1) separa os produtos por grupo (na ordem de GROUPS)
+  const known  = GROUPS.map(g => g.id);
+  const blocks = GROUPS.map(g => ({ g, items: PRODUCTS.filter(p => p.group === g.id) }));
+  // 2) produto sem grupo válido → bloco automático no final (nada some da tela)
+  const orphans = PRODUCTS.filter(p => !known.includes(p.group));
+  if (orphans.length) blocks.push({ g: { id:'outros-auto', title:'OUTROS ITENS', icon:'✨', color:'var(--yel)' }, items: orphans });
+  const shown = blocks.filter(b => b.items.length);       // grupo vazio não aparece
+
+  // 3) atalhos no topo (só faz sentido com 2+ grupos)
+  const nav = (SHOW_GROUP_NAV && shown.length > 1)
+    ? `<div class="group-nav">${shown.map(b =>
+        `<a class="group-chip" href="#grp-${b.g.id}" style="--gc:${b.g.color}">${b.g.icon} ${b.g.title}</a>`).join('')}</div>`
+    : '';
+
+  // 4) um bloco por grupo: título + grid de cards
+  document.getElementById('productGrid').innerHTML = nav + shown.map(b => `
+    <div class="group-block" id="grp-${b.g.id}" style="--gc:${b.g.color}">
+      <div class="group-head">
+        <span class="group-icon">${b.g.icon}</span>
+        <h3 class="group-title">${b.g.title}</h3>
+        <span class="group-count">${b.items.length} ${b.items.length === 1 ? 'item' : 'itens'}</span>
+        <span class="group-line"></span>
+      </div>
+      <div class="product-grid">${b.items.map(renderCard).join('')}</div>
+    </div>`).join('');
 }
 
 function chg(id, d) {
@@ -2300,7 +2471,7 @@ function renderSimByQty(qty) {
     }
   });
 
-  document.getElementById('simRows').innerHTML = rows.join('');
+  simPutRows(rows);
   updateSimFooter();
 }
 
@@ -2355,8 +2526,18 @@ function renderSimByBudget(budget) {
     }
   });
 
-  document.getElementById('simRows').innerHTML = rows.join('');
+  simPutRows(rows);
   updateSimFooter();
+}
+
+// ─── simPutRows ──────────────────────────────────────
+// Grava as linhas na tabela do simulador. Também informa ao CSS quantas
+// linhas cabem em cada coluna (--sim-rows), para o modo de 2 colunas
+// listar de cima para baixo: coluna 1 e depois coluna 2.
+function simPutRows(rows) {
+  const el = document.getElementById('simRows');
+  el.innerHTML = rows.join('');
+  el.style.setProperty('--sim-rows', Math.ceil(rows.length / 2));
 }
 
 // ─── getPriceSim ─────────────────────────────────────
