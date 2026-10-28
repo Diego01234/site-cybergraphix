@@ -2013,50 +2013,61 @@ const DEFAULT_PRICING = {
   // ─── Pequena: Polaroide Pequena 5×7cm ─────────────────────
   Pequena: [
     {q:4, u:1.5},    
-    {q:32, u:0.9},   
-    {q:48, u:0.81},  
-    {q:64, u:0.72},  
-    {q:80, u:0.7},  
-    {q:96, u:0.69},  
+    {q:16, u:1.13},
+    {q:32, u:0.82},
+    {q:48, u:0.73},
+    {q:64, u:0.71},
+    {q:80, u:0.69},
+    {q:96, u:0.68},
+ 
   ],
 
   // ─── MÉDIA: Polaroide Média 6×8,6cm ─────────────────
   media: [
     {q:3,  u:2.0},   
-    {q:18, u:1.67},  
-    {q:27, u:1.33},   
-    {q:36, u:1.17},   
-    {q:45, u:1.07},  
-    {q:54, u:1.0},    
-    {q:72, u:0.95},  
-    {q:81, u:0.90},  
+    {q:9, u: 1.67},
+    {q:18, u: 1.12},
+    {q:27, u: 1},
+  
+    {q:54, u: 0.93},
+  
   ],
 
   // ─── GRANDE: 7×10cm ───────────────────────
   grande: [
     {q:2,  u:2.5},  
-    {q:16, u:1.81},   
-    {q:24, u:1.75},   
-    {q:32, u:1.5},   
-    {q:40, u:1.31},   
-    {q:48, u:1.37},   
+    {q:8, u: 2.25},
+    {q:16, u: 1.82},
+    {q:24, u: 1.25},
+    {q:32, u: 1.32},
+    {q:40, u: 1.37},
+   
     
   ],
 
   // ─── PERSONALIZADA: 6,5×9cm ─────────────────────────
   personalizada: [
-    {q:3,   u:3.0},
-    {q:6,   u:2.5},
-    {q:9,   u:2.22},
-    {q:18,  u:2.00},
-    {q:27,  u:1.78},
-    {q:36,  u:1.44},
-    {q:45,  u:1.33},
+    {q:3,   u:2.5},
+   {q:9, u: 1.67}, 
+   {q:18, u: 1.12}, 
+   
+   {q:36, u: 1}, 
+
     
   ],
 
+  photocards: [
+    {q:2,   u:2.0},
+    {q:10, u: 1.8},
+    {q:20, u: 1.6},
+    {q:30, u: 1.3},
+    {q:50, u: 1},
+    {q:100, u: 0.9},
+
+    ],
+
   // ─── TIRINHAS — preço fixo por unidade ──────────────
-    tp: [{q:1, u:5.00}],   // Polaroide 4×14cm
+    tp: [{q:1, u:5.00}],   
 
   // ─── Fotos 10x15 cm ─────────────────────────
     foto10x15: [
@@ -2092,14 +2103,7 @@ const DEFAULT_PRICING = {
       {q:1,   u:49.9},
     ],
 
-    photocards: [
-      {q:3,   u:2.0},
-      {q:10,   u:1.80},
-      {q:20,   u:1.60},
-      {q:30,  u:1.30},
-      {q:50,  u:1.0},
-      {q:100,  u:0.90},
-    ],
+    
 };
 
 let PRICING = LS.get('cgx_pricing') || JSON.parse(JSON.stringify(DEFAULT_PRICING));
@@ -2457,7 +2461,7 @@ function sendWpp() {
   const cnt = (LS.get('cgx_pedidos') || 0) + 1;
   LS.set('cgx_pedidos', cnt);
   window.open(`https://wa.me/5592994120494?text=${encodeURIComponent(lines.join('\n'))}`,'_blank');
-  showToast('✓ PEDIDO ENVIADO!', true);
+  showToast('✓ ABRINDO O WHATSAPP', true);
 }
 
 // ─── sendItemWpp ─────────────────────────────────────
